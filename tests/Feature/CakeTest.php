@@ -35,7 +35,11 @@ class CakeTest extends TestCase
                     'description' => 'Creamy dan Segar di mulut',
                     'price' => 15000,
                     'stock' => 100,
-                    'image' => $image->hashName()
+                    'image' => $image->hashName(),
+                    'category' => [
+                        'id' => 1,
+                        'name' => 'Cheese Cake'
+                    ]
                 ]
             ]);
     }
