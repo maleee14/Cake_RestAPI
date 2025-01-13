@@ -16,13 +16,14 @@ class CakeResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'name' => $this->name,
             'description' => $this->description,
             'price' => $this->price,
             'stock' => $this->stock,
             'image' => $this->image,
             'category' => $this->category ? [
-                $this->category->id,
-                $this->category->name
+                'id' => $this->category->id,
+                'name' => $this->category->name
             ] : null
         ];
     }

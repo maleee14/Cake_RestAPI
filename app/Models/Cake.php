@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Cake extends Model
 {
-    protected $table = 'categories';
+    protected $table = 'cakes';
     protected $fillable = [
         'name',
         'description',

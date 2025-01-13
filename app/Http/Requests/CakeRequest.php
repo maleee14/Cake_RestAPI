@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class CakeRequest extends FormRequest
 {
@@ -22,7 +24,19 @@ class CakeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|max:100',
+            'description' => 'required|max:100',
+            'price' => 'required|max:100',
+            'stock' => 'required|max:100',
+            'image' => 'required|image|max:2048',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response([
+            "status" => false,
+            "errors" => $validator->getMessageBag()
+        ], 400));
     }
 }

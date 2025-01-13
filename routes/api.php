@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CakeController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -22,4 +23,8 @@ Route::middleware('token')->group(function () {
     Route::put('/categories/{id}', [CategoryController::class, 'update'])->where('id', '[0-9]+');
     Route::delete('/categories/{id}', [CategoryController::class, 'delete'])->where('id', '[0-9]+');
     Route::get('/categories/list', [CategoryController::class, 'list']);
+
+    Route::prefix('/categories/{idCategory}/cakes')->group(function () {
+        Route::post('/', [CakeController::class, 'create'])->where('idCategory', '[0-9]+');
+    });
 });

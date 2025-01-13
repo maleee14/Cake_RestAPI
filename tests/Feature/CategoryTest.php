@@ -104,7 +104,7 @@ class CategoryTest extends TestCase
         $category = Category::query()->limit(1)->first();
         $this->get('/api/categories/' . ($category->id + 2), [
             'Authorization' => 'token123'
-        ])->assertStatus(400)
+        ])->assertStatus(404)
             ->assertJson([
                 'errors' => [
                     'message' => [
@@ -160,7 +160,7 @@ class CategoryTest extends TestCase
             'description' => 'Creamy'
         ], [
             'Authorization' => 'token123'
-        ])->assertStatus(400)
+        ])->assertStatus(404)
             ->assertJson([
                 'errors' => [
                     'message' => [
@@ -190,7 +190,7 @@ class CategoryTest extends TestCase
         $category = Category::query()->limit(1)->first();
         $this->delete(uri: '/api/categories/' . ($category->id + 2), headers: [
             'Authorization' => 'token123'
-        ])->assertStatus(400)
+        ])->assertStatus(404)
             ->assertJson([
                 'errors' => [
                     'message' => [

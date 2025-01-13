@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function getCategory(int $id): Category
+    private function getCategory(int $id): Category
     {
         $category = Category::where('id', $id)->first();
         if (!$category) {
@@ -22,7 +22,7 @@ class CategoryController extends Controller
                         "not found"
                     ]
                 ]
-            ], 400));
+            ], 404));
         }
         return $category;
     }
