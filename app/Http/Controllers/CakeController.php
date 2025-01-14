@@ -78,6 +78,33 @@ class CakeController extends Controller
         ]);
     }
 
+    public function update(CakeRequest $request, int $idCategory, int $idCake): JsonResponse
+    {
+        $data = $request->validated();
+        $category = $this->getCategory($idCategory);
+        $cake = $this->getCake($category, $idCake);
+
+        $cake->fill($data);
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $path = time() . '_' . $data['name'] . '.' . $file->getClientOriginalExtension();
+
+            Storage::disk('cake')->put($path, file_get_contents($file));
+
+            if ($cake->image) {
+                Storage::disk('cake')->delete($cake->image);
+            }
+
+            $cake->image = $path;
+        }
+        $cake->save();
+
+        return response()->json([
+            "status" => true,
+            "data" => new CakeResource($cake)
+        ]);
+    }
+
     public function delete(int $idCategory, int $idCake): JsonResponse
     {
         $category = $this->getCategory($idCategory);

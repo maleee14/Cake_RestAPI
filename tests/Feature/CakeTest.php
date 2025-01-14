@@ -137,6 +137,86 @@ class CakeTest extends TestCase
             ]);
     }
 
+    public function testUpdateSuccess()
+    {
+        $this->seed([UserSeeder::class, CategorySeeder::class, CakeSeeder::class]);
+        $image = UploadedFile::fake()->image('blueberry.jpg', 600, 400);
+        $cake = Cake::query()->limit(1)->first();
+
+        $this->put('/api/categories/' . $cake->category_id . '/cakes/' . $cake->id, [
+            'name' => 'Blueberry Cheese Cake',
+            'description' => 'Creamy dan Segar serta Lembut',
+            'price' => 25000,
+            'stock' => 100,
+            'image' => $image
+        ], [
+            'Authorization' => 'token123'
+        ])->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'name' => 'Blueberry Cheese Cake',
+                    'description' => 'Creamy dan Segar serta Lembut',
+                    'price' => 25000,
+                    'stock' => 100,
+                    // 'image' => menyesuaikan nama path,
+                    'category' => [
+                        'id' => 1,
+                        'name' => 'Cheese Cake'
+                    ]
+                ]
+            ]);
+    }
+
+    public function testUpdateNotFound()
+    {
+        $this->seed([UserSeeder::class, CategorySeeder::class, CakeSeeder::class]);
+        $image = UploadedFile::fake()->image('blueberry.jpg', 600, 400);
+        $cake = Cake::query()->limit(1)->first();
+
+        $this->put('/api/categories/' . $cake->category_id . '/cakes/' . ($cake->id + 1), [
+            'name' => 'Blueberry Cheese Cake',
+            'description' => 'Creamy dan Segar serta Lembut',
+            'price' => 25000,
+            'stock' => 100,
+            'image' => $image
+        ], [
+            'Authorization' => 'token123'
+        ])->assertStatus(404)
+            ->assertJson([
+                'errors' => [
+                    'message' => [
+                        'not found'
+                    ]
+                ]
+            ]);
+    }
+
+    public function testUpdateFailed()
+    {
+        $this->seed([UserSeeder::class, CategorySeeder::class, CakeSeeder::class]);
+        $cake = Cake::query()->limit(1)->first();
+
+        $this->put('/api/categories/' . $cake->category_id . '/cakes/' . $cake->id, [
+            'name' => 'Blueberry Cheese Cake',
+            'description' => 'Creamy dan Segar serta Lembut',
+            'price' => 25000,
+            'stock' => '',
+            'image' => 'salah'
+        ], [
+            'Authorization' => 'token123'
+        ])->assertStatus(400)
+            ->assertJson([
+                'errors' => [
+                    'stock' => [
+                        'The stock field is required.'
+                    ],
+                    'image' => [
+                        'The image field must be an image.'
+                    ]
+                ]
+            ]);
+    }
+
     public function testDeleteSuccess()
     {
         $this->seed([UserSeeder::class, CategorySeeder::class, CakeSeeder::class]);
