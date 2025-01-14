@@ -2,12 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Models\Cake;
 use App\Models\Category;
+use Database\Seeders\CakeSeeder;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class CakeTest extends TestCase
@@ -35,7 +38,7 @@ class CakeTest extends TestCase
                     'description' => 'Creamy dan Segar di mulut',
                     'price' => 15000,
                     'stock' => 100,
-                    'image' => $image->hashName(),
+                    // 'image' => menyesuaikan nama path,
                     'category' => [
                         'id' => 1,
                         'name' => 'Cheese Cake'
@@ -83,6 +86,75 @@ class CakeTest extends TestCase
             'stock' => 100,
             'image' => $image
         ], [
+            'Authorization' => 'token123'
+        ])->assertStatus(404)
+            ->assertJson([
+                'errors' => [
+                    'message' => [
+                        'not found'
+                    ]
+                ]
+            ]);
+    }
+
+    public function testGetSuccess()
+    {
+        $this->seed([UserSeeder::class, CategorySeeder::class, CakeSeeder::class]);
+        $cake = Cake::query()->limit(1)->first();
+
+        $this->get('/api/categories/' . $cake->category_id . '/cakes/' . $cake->id, [
+            'Authorization' => 'token123'
+        ])->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'name' => 'Blueberry Cheese Cake',
+                    'description' => 'Creamy dan Segar di mulut',
+                    'price' => 15000,
+                    'stock' => 100,
+                    'image' => $cake->image,
+                    'category' => [
+                        'id' => 1,
+                        'name' => 'Cheese Cake'
+                    ]
+                ]
+            ]);
+    }
+
+    public function testGetNotFound()
+    {
+        $this->seed([UserSeeder::class, CategorySeeder::class, CakeSeeder::class]);
+        $cake = Cake::query()->limit(1)->first();
+
+        $this->get('/api/categories/' . $cake->category_id . '/cakes/' . ($cake->id + 1), [
+            'Authorization' => 'token123'
+        ])->assertStatus(404)
+            ->assertJson([
+                'errors' => [
+                    'message' => [
+                        'not found'
+                    ]
+                ]
+            ]);
+    }
+
+    public function testDeleteSuccess()
+    {
+        $this->seed([UserSeeder::class, CategorySeeder::class, CakeSeeder::class]);
+        $cake = Cake::query()->limit(1)->first();
+        $this->delete(uri: '/api/categories/' . $cake->category_id . '/cakes/' . $cake->id, headers: [
+            'Authorization' => 'token123'
+        ])->assertStatus(200)
+            ->assertJson([
+                'data' => true
+            ]);
+    }
+
+    public function testDeleteNotFound()
+    {
+        $this->seed([UserSeeder::class, CategorySeeder::class, CakeSeeder::class]);
+        $cake = Cake::query()->limit(1)->first();
+
+        $this->delete(uri: '/api/categories/' . $cake->category_id . '/cakes/' . ($cake->id + 1), headers: [
             'Authorization' => 'token123'
         ])->assertStatus(404)
             ->assertJson([

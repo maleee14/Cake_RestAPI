@@ -26,5 +26,7 @@ Route::middleware('token')->group(function () {
 
     Route::prefix('/categories/{idCategory}/cakes')->group(function () {
         Route::post('/', [CakeController::class, 'create'])->where('idCategory', '[0-9]+');
+        Route::get('/{idCake}', [CakeController::class, 'get'])->where('idCategory', '[0-9]+')->where('idCake', '[0-9]+');
+        Route::delete('/{idCake}', [CakeController::class, 'delete'])->where('idCategory', '[0-9]+')->where('idCake', '[0-9]+');
     });
 });

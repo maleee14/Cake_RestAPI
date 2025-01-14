@@ -29,6 +29,23 @@ class CakeController extends Controller
         return $category;
     }
 
+    private function getCake(Category $category, int $idCake): Cake
+    {
+        $cake = Cake::with('category')->where('category_id', $category->id)->where('id', $idCake)->first();
+
+        if (!$cake) {
+            throw new HttpResponseException(response([
+                "status" => false,
+                "errors" => [
+                    "message" => [
+                        "not found"
+                    ]
+                ]
+            ], 404));
+        }
+        return $cake;
+    }
+
     public function create(CakeRequest $request, int $idCategory): JsonResponse
     {
         $data = $request->validated();
@@ -38,7 +55,7 @@ class CakeController extends Controller
         $cake->category_id = $category->id;
 
         $file = $request->file('image');
-        $path = $file->hashName();
+        $path = time() . '_' . $data['name'] . '.' . $file->getClientOriginalExtension();
         Storage::disk('cake')->put($path, file_get_contents($file));
 
         $cake->image = $path;
@@ -48,5 +65,33 @@ class CakeController extends Controller
             "status" => true,
             "data" => new CakeResource($cake)
         ], 201);
+    }
+
+    public function get(int $idCategory, int $idCake): JsonResponse
+    {
+        $category = $this->getCategory($idCategory);
+        $cake = $this->getCake($category, $idCake);
+
+        return response()->json([
+            "status" => true,
+            "data" => new CakeResource($cake)
+        ]);
+    }
+
+    public function delete(int $idCategory, int $idCake): JsonResponse
+    {
+        $category = $this->getCategory($idCategory);
+        $cake = $this->getCake($category, $idCake);
+
+        if (Storage::disk('cake')->exists($cake->image)) {
+            Storage::disk('cake')->delete($cake->image);
+        }
+
+        $cake->delete();
+
+        return response()->json([
+            "status" => true,
+            "data" => true
+        ]);
     }
 }
