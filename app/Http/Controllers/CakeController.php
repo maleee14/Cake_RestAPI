@@ -56,7 +56,7 @@ class CakeController extends Controller
 
         $file = $request->file('image');
         $path = time() . '_' . $data['name'] . '.' . $file->getClientOriginalExtension();
-        Storage::disk('cake')->put($path, file_get_contents($file));
+        Storage::disk('cake')->put('public/cake/' . $path, file_get_contents($file));
 
         $cake->image = $path;
         $cake->save();
@@ -89,7 +89,7 @@ class CakeController extends Controller
             $file = $request->file('image');
             $path = time() . '_' . $data['name'] . '.' . $file->getClientOriginalExtension();
 
-            Storage::disk('cake')->put($path, file_get_contents($file));
+            Storage::disk('cake')->put('public/cake/' . $path, file_get_contents($file));
 
             if ($cake->image) {
                 Storage::disk('cake')->delete($cake->image);
